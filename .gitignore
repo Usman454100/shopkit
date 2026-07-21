@@ -1,0 +1,25 @@
+# OS / editor noise
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.log
+
+# Node workspaces (admin-web/, superadmin-web/, mobile-app/) each get their
+# own node_modules; backend/ has its own .gitignore for vendor/, .env, etc.
+node_modules/
+dist/
+build/
+
+# Build output copied into the Laravel backend at deploy time (see
+# docs/02-ARCHITECTURE.md §4) — generated, not source.
+backend/public/admin/
+backend/public/superadmin/
+
+# Mobile
+mobile-app/.expo/
+mobile-app/*.jks
+mobile-app/*.p8
+mobile-app/*.p12
+mobile-app/*.key
+mobile-app/*.mobileprovision
