@@ -49,4 +49,19 @@ class Product extends Model
     {
         return $this->hasMany(Inventory::class);
     }
+
+    /**
+     * True if any sellable unit (the product itself, or any variant) has stock.
+     * Used to derive the customer-facing "in stock" flag without exposing
+     * exact backroom quantities (see docs/06-UX-FLOWS.md's out-of-stock edge case).
+     */
+    public function isInStock(): bool
+    {
+        return $this->inventory->sum('quantity_on_hand') > 0;
+    }
+
+    public function isExpired(): bool
+    {
+        return $this->is_perishable && $this->expiry_date !== null && $this->expiry_date->isPast();
+    }
 }

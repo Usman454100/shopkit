@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\EnsureRole;
+use App\Http\Middleware\EnsureStoreIsActive;
 use App\Http\Middleware\EnsureUserBelongsToCurrentStore;
 use App\Http\Middleware\SyncCurrentStoreWithTenancy;
 use Illuminate\Foundation\Application;
@@ -19,6 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => EnsureRole::class,
             'store.sync' => SyncCurrentStoreWithTenancy::class,
             'store.member' => EnsureUserBelongsToCurrentStore::class,
+            'store.active' => EnsureStoreIsActive::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

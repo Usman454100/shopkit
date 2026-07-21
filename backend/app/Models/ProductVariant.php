@@ -39,4 +39,9 @@ class ProductVariant extends Model
     {
         return $this->hasMany(Inventory::class, 'variant_id');
     }
+
+    public function isInStock(): bool
+    {
+        return $this->inventory->sum('quantity_on_hand') > 0;
+    }
 }

@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Api\CatalogController;
 use App\Http\Controllers\Api\InventoryController;
+use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\ProductVariantController;
 use Illuminate\Routing\Middleware\SubstituteBindings;
@@ -55,4 +57,33 @@ Route::middleware([
     Route::delete('products/{product}/variants/{variant}', [ProductVariantController::class, 'destroy']);
     Route::get('inventory', [InventoryController::class, 'index']);
     Route::patch('inventory/{inventory}', [InventoryController::class, 'update']);
+});
+
+// Customer catalog browsing — anonymous, per the Milestone 3 decision to allow
+// browsing before login (auth is only required at checkout). See docs/01-PRD.md §7.2.
+Route::middleware([
+    InitializeTenancyByDomain::class,
+    PreventAccessFromCentralDomains::class,
+    'store.sync',
+    'store.active',
+])->prefix('api')->group(function () {
+    Route::get('catalog/products', [CatalogController::class, 'index']);
+    Route::get('catalog/products/{product}', [CatalogController::class, 'show']);
+});
+
+// Customer checkout & order history — authenticated. Deliberately no
+// store.member here: unlike staff, a customer's token is valid on any
+// approved store's subdomain (see docs/03-DATABASE-SCHEMA.md's users.store_id note).
+Route::middleware([
+    InitializeTenancyByDomain::class,
+    PreventAccessFromCentralDomains::class,
+    'store.sync',
+    'store.active',
+    'auth:sanctum',
+    'role:customer',
+    SubstituteBindings::class,
+])->prefix('api')->group(function () {
+    Route::post('orders', [OrderController::class, 'store']);
+    Route::get('orders', [OrderController::class, 'index']);
+    Route::get('orders/{order}', [OrderController::class, 'show']);
 });
