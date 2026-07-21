@@ -12,6 +12,13 @@ return [
     'domain_model' => Domain::class,
 
     /**
+     * Parent domain for tenant subdomains ({store-slug}.central_domain). Named
+     * here so app code has one place to read it from instead of calling env()
+     * directly (see docs/08-OPEN-QUESTIONS.md #5 — placeholder until a real domain is set).
+     */
+    'central_domain' => env('APP_TENANT_DOMAIN', 'shopkit.test'),
+
+    /**
      * The list of domains hosting your central app.
      *
      * Only relevant if you're using the domain or subdomain identification middleware.

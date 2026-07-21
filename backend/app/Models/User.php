@@ -30,6 +30,9 @@ class User extends Authenticatable
         'role',
         'organization_id',
         'store_id',
+        'invite_token',
+        'invite_expires_at',
+        'email_verified_at',
     ];
 
     /**
@@ -40,6 +43,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'invite_token',
     ];
 
     /**
@@ -52,6 +56,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'invite_expires_at' => 'datetime',
         ];
     }
 

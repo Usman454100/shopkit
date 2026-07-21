@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 use Stancl\Tenancy\Contracts\Tenant as TenantContract;
 use Stancl\Tenancy\Database\Concerns\CentralConnection;
 use Stancl\Tenancy\Database\Concerns\GeneratesIds;
@@ -85,5 +86,24 @@ class Store extends Model implements TenantContract
     public function staff(): HasMany
     {
         return $this->hasMany(User::class);
+    }
+
+    /**
+     * Turn a business name into a unique store slug, appending -2, -3, ...
+     * on collision. Used at approval time (see docs/01-PRD.md §7.1) — slugs
+     * are never user-editable, so this is the only place collisions happen.
+     */
+    public static function generateUniqueSlug(string $businessName): string
+    {
+        $base = Str::slug($businessName) ?: 'store';
+        $slug = $base;
+        $suffix = 2;
+
+        while (static::where('slug', $slug)->exists()) {
+            $slug = "{$base}-{$suffix}";
+            $suffix++;
+        }
+
+        return $slug;
     }
 }
