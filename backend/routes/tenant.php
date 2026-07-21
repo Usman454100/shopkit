@@ -7,6 +7,9 @@ use App\Http\Controllers\Api\InventoryController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\ProductVariantController;
+use App\Http\Controllers\Api\StoreAdmin\CustomerController as StoreAdminCustomerController;
+use App\Http\Controllers\Api\StoreAdmin\DashboardController as StoreAdminDashboardController;
+use App\Http\Controllers\Api\StoreAdmin\OrderController as StoreAdminOrderController;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Support\Facades\Route;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
@@ -57,6 +60,19 @@ Route::middleware([
     Route::delete('products/{product}/variants/{variant}', [ProductVariantController::class, 'destroy']);
     Route::get('inventory', [InventoryController::class, 'index']);
     Route::patch('inventory/{inventory}', [InventoryController::class, 'update']);
+
+    // Order management & dashboard (see docs/07-ROADMAP.md Milestone 4). Under
+    // /admin to avoid colliding with the customer-facing /api/orders routes
+    // below — Laravel's route collection keys by method+URI regardless of
+    // domain, so reusing the same URI would silently overwrite one or the other.
+    Route::prefix('admin')->group(function () {
+        Route::get('dashboard', [StoreAdminDashboardController::class, 'index']);
+        Route::get('orders', [StoreAdminOrderController::class, 'index']);
+        Route::get('orders/{order}', [StoreAdminOrderController::class, 'show']);
+        Route::patch('orders/{order}/status', [StoreAdminOrderController::class, 'updateStatus']);
+        Route::get('customers', [StoreAdminCustomerController::class, 'index']);
+        Route::get('customers/{customer}', [StoreAdminCustomerController::class, 'show']);
+    });
 });
 
 // Customer catalog browsing — anonymous, per the Milestone 3 decision to allow
