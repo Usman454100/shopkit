@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\ProductVariantController;
 use App\Http\Controllers\Api\StoreAdmin\CustomerController as StoreAdminCustomerController;
 use App\Http\Controllers\Api\StoreAdmin\DashboardController as StoreAdminDashboardController;
 use App\Http\Controllers\Api\StoreAdmin\OrderController as StoreAdminOrderController;
+use App\Http\Controllers\SpaController;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Support\Facades\Route;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
@@ -27,15 +28,15 @@ use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 |
 */
 
+// Store Admin console SPA (see docs/02-ARCHITECTURE.md §4 and Milestone 5).
+// Per-store subdomain, not central — this is the tenant-scoped counterpart
+// to the /superadmin/{any?} route in routes/web.php. No auth/store.sync
+// needed just to serve the static shell; the SPA itself calls authenticated
+// API endpoints once loaded.
 Route::middleware([
-    'web',
     InitializeTenancyByDomain::class,
     PreventAccessFromCentralDomains::class,
-])->group(function () {
-    Route::get('/', function () {
-        return 'This is your multi-tenant application. The id of the current tenant is ' . tenant('id');
-    });
-});
+])->get('/admin/{any?}', [SpaController::class, 'adminApp'])->where('any', '.*');
 
 // Store Admin API — catalog & inventory (see docs/07-ROADMAP.md Milestone 2).
 // No 'web' group: these are stateless bearer-token calls, not session/CSRF-based.
